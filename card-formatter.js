@@ -44,6 +44,10 @@ fs.readdir(cardDir, (err, files) => {
     process.exit(1);
   }
 
+  let totalWhiteCardsSum = 0;
+  let totalBlackCardsSum = 0;
+  let totalDecksSum = 0;
+
   files.forEach((file) => {
     if(fs.lstatSync(path.join(cardDir, file)).isDirectory()) {
       return;
@@ -58,6 +62,10 @@ fs.readdir(cardDir, (err, files) => {
 
     const cardSet = Object.assign({}, cardSetOutputFormat, {title: cardsetName});
 
+    totalBlackCardsSum += cardSet.blackCards.length;
+    totalWhiteCardsSum += cardSet.whiteCards.length;
+    totalDecksSum++;
+
     jsonFileContents.whiteCards.forEach((card) => {
       cardSet.whiteCards.push(parseAndCreateCard(card, whiteCardEnumValue));
     });
@@ -68,6 +76,8 @@ fs.readdir(cardDir, (err, files) => {
     fs.writeFileSync(path.join(cardOutDir, fileName), JSON.stringify(cardSet));
 
   });
+
+  console.log('totalWhite: ', totalWhiteCardsSum, ' totalBlack: ', totalBlackCardsSum, ' totalDecks: ', totalDecksSum);
 
 });
 
