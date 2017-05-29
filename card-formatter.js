@@ -80,7 +80,10 @@ function parseAndCreateCard(inputObj, cardType) {
   let card = Object.assign({}, cardOutputFormat);
 
   card.cardType = cardType;
-  card.text = typeof inputObj === 'string' ? inputObj : inputObj.text;
+
+  const cardText = typeof inputObj === 'string' ? inputObj : inputObj.text;
+
+  card.text = cardText.escapeSpecialChars();
 
   if(cardType === 1) {
     card.pick = inputObj.pick;
@@ -116,3 +119,6 @@ function determineHumanReadableCardsetName(cardsetName) {
 
 }
 
+String.prototype.escapeSpecialChars = function() {
+	return this.replace(/\"/g, '\\"')
+};
