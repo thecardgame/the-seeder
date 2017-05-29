@@ -54,7 +54,7 @@ const createWhiteCard = (whiteCard) => {
 			cardType: ${whiteCard.cardType}
 		) {id}
 	}
-	`).catch(e => console.log('createWhiteCard mutation error: ', e));;
+	`).catch(e => console.log('createWhiteCard mutation error: ', e));
 };
 const createWhiteCardFactory = (whiteCard) => {
 	return function() {
@@ -206,7 +206,7 @@ const handleFile  = (filePath) => {
 			cs = JSON.parse(fileContent);
 			return cs;
 		})
-		.then((cardSet) => {
+		.then(() => {
 			console.log('parsed file');
 			return createWhiteCards(cs.whiteCards);
 		})
