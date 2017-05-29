@@ -6,4 +6,4 @@ cache: yarn
 
 script:
   - npm run format
-  - npm run uploader
+  - npm run upload
