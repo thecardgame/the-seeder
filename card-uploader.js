@@ -14,11 +14,11 @@ const Q = require('q');
 const cardDir = './cah-sets/formatted';
 
 const headers = {
-	Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0OTU0MDI0NzQsImNsaWVudElkIjoiY2l1dXhlOGNvMHMzNzAxNTFpdzVkdmYyeSIsInByb2plY3RJZCI6ImNqMno1c3M3NTN6cGMwMTc2MG5nNmhqanIiLCJwZXJtYW5lbnRBdXRoVG9rZW5JZCI6ImNqMno4MHU2MTR1OWQwMTkweGo5dG5pZHIifQ.4Xi5v-QjzThlPkeYPaivcqvvnFlboaI8PWMflkOak58'
+	Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE0OTYwODgzODMsImNsaWVudElkIjoiY2l1dXhlOGNvMHMzNzAxNTFpdzVkdmYyeSIsInByb2plY3RJZCI6ImNqMnloa3M2Ymp2bDYwMTMzOGdzZjdidW0iLCJwZXJtYW5lbnRBdXRoVG9rZW5JZCI6ImNqM2FrZTh0eHBxYXMwMTgyczR4OTB0NHMifQ.9Tw8ko_5IEiqsQnzu41jcY0zfsrwstetLk2Mn5JR_Q8'
 };
 
 const client = new Lokka({
-	transport: new Transport('https://api.graph.cool/simple/v1/cj2z5ss753zpc01760ng6hjjr', {headers})
+	transport: new Transport('https://api.graph.cool/simple/v1/cj2yhks6bjvl601338gsf7bum', {headers})
 });
 
 /*
@@ -38,8 +38,7 @@ const createCardSet = (cardSet) => {
 	      	title: "${cardSet.title}"
 		) {id}
 	}
-	`);
-
+	`).catch(e => console.log('createCardSet mutation error: ', e));
 };
 
 /*
@@ -55,12 +54,13 @@ const createWhiteCard = (whiteCard) => {
 			cardType: ${whiteCard.cardType}
 		) {id}
 	}
-	`);
+	`).catch(e => console.log('createWhiteCard mutation error: ', e));;
 };
 const createWhiteCardFactory = (whiteCard) => {
 	return function() {
 		return createWhiteCard(whiteCard)
 			.then((result) => result.whiteCard.id)
+			.catch(e => console.log('createWhiteCardFactory error: ', e));
 	}
 };
 const createWhiteCards = (whiteCards) => {
@@ -71,10 +71,12 @@ const createWhiteCards = (whiteCards) => {
 	let chain = Q.when();
 
 	whiteCards.forEach((whiteCard) => {
-		chain = chain.then(createWhiteCardFactory(whiteCard)).then((id) => whiteCardIds.push(id));
+		chain = chain
+			.then(createWhiteCardFactory(whiteCard)).then((id) => whiteCardIds.push(id))
+			.catch(e => console.log('createWhiteCards error: ', e));
 	});
 
-	chain.then(() => deferred.resolve(whiteCardIds));
+	chain.then(() => deferred.resolve(whiteCardIds)).catch(e => console.log('createWhiteCards chain end error: ', e));
 
 	return deferred.promise;
 
@@ -94,12 +96,13 @@ const createBlackCard = (blackCard) => {
 			pick: ${blackCard.pick}
 		) {id}
 	}
-	`);
+	`).catch(e => console.log('createBlackCard mutation error: ', e));
 };
 const createBlackCardFactory = (blackCard) => {
 	return function() {
 		return createBlackCard(blackCard)
 			.then((result) => result.blackCard.id)
+			.catch(e => console.log('createBlackCardFactory error: ', e));
 	}
 };
 const createBlackCards = (blackCards) => {
@@ -129,7 +132,7 @@ const connectWhiteCardAndCardSet = (whiteCardId, cardSetId) => {
 		{
 			addToWhiteCards(whiteCardsWhiteCardId: "${whiteCardId}", cardSetCardSetId: "${cardSetId}") {whiteCardsWhiteCard {id}}
 		}
-	`)
+	`).catch(e => console.log('connectWhiteCardAndCardSet mutation error: ', e));
 };
 const connectWhiteCardAndCardSetFactory = (whiteCardId, cardSetId) => {
 	return function() {
@@ -162,7 +165,7 @@ const connectBlackCardAndCardSet = (blackCardId, cardSetId) => {
 		{
 			addToBlackCards(blackCardsBlackCardId: "${blackCardId}", cardSetCardSetId: "${cardSetId}") {blackCardsBlackCard {id}}
 		}
-	`);
+	`).catch(e => console.log('connectBlackCardAndCardSet mutation error: ', e));
 };
 const connectBlackCardAndCardSetFactory = (blackCardId, cardSetId) => {
 	return function() {
@@ -232,7 +235,8 @@ const handleFile  = (filePath) => {
 		.then(() => {
 			console.log('connected black cards');
 			deferred.resolve();
-		});
+		})
+		.catch(e => console.log('handeFile error: ', e));
 
 	return deferred.promise;
 	
