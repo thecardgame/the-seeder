@@ -1,0 +1,60 @@
+# project: cj2yhks6bjvl601338gsf7bum
+# version: 15
+
+type File implements Node {
+  contentType: String!
+  createdAt: DateTime!
+  id: ID! @isUnique
+  name: String!
+  secret: String! @isUnique
+  size: Int!
+  updatedAt: DateTime!
+  url: String! @isUnique
+}
+
+type Lobby implements Node {
+  active: Boolean @defaultValue(value: false)
+  createdAt: DateTime!
+  currentUser: String
+  id: ID! @isUnique
+  updatedAt: DateTime!
+  updatedTimestamp: String
+  users: [User!]! @relation(name: "UserOnLobby")
+}
+
+type User implements Node {
+  createdAt: DateTime!
+  id: ID! @isUnique
+  lobbies: [Lobby!]! @relation(name: "UserOnLobby")
+  updatedAt: DateTime!
+}
+
+type CardSet implements Node {
+  createdAt: DateTime!
+  id: ID! @isUnique
+  updatedAt: DateTime!
+  blackCards: [BlackCard!]! @relation(name: "BlackCards")
+  title: String!
+  whiteCards: [WhiteCard!]! @relation(name: "WhiteCards")
+}
+
+type BlackCard implements Node {
+  createdAt: DateTime!
+  id: ID! @isUnique
+  updatedAt: DateTime!
+  cardType: Int!
+  text: String!
+  pick: Int!
+  cardSet: CardSet @relation(name: "BlackCards")
+  rating: Int
+}
+
+type WhiteCard implements Node {
+  createdAt: DateTime!
+  id: ID! @isUnique
+  updatedAt: DateTime!
+  cardType: Int!
+  text: String!
+  cardSet: CardSet @relation(name: "WhiteCards")
+  rating: Int
+}
