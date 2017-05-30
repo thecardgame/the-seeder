@@ -7,6 +7,9 @@ const process = require('process');
 
 const progress = require('progress');
 const chalk = require('chalk');
+const Table = require('tty-table');
+const ora = require('ora');
+const now = require('performance-now');
 
 const cardDir = './cah-sets';
 const cardOutDir = './cah-sets/formatted';
@@ -28,19 +31,40 @@ const cardOutputFormat = {
   text: ''
 };
 
+const tableHeader = [
+  {
+    value: '',
+    width: 30
+  },
+  {
+    value: 'White Cards'
+  },
+  {
+    value: 'Black Cards'
+  },
+  {
+    value: 'Total Cards'
+  }
+];
+const tableRows = [];
+
+const taskStartTimer = now();
+
+const spinner = ora('Processing files').start();
+
 if(fs.existsSync(cardOutDir)) {
-  console.log('Emptying Output Directory.');
+  spinner.text = 'Emptying output directory';
   fs.readdirSync(cardOutDir).forEach((file) => {
     fs.unlinkSync(path.join(cardOutDir, file));
   });
 } else {
-  console.log('Creating Output Directory.');
+  spinner.text = 'Creating output directory';
   fs.mkdirSync(cardOutDir);
 }
 
 fs.readdir(cardDir, (err, files) => {
   if(err) {
-    console.error("Error reading directory.", err);
+    spinner.fail('Error reading directory.', err);
     process.exit(1);
   }
 
@@ -56,9 +80,8 @@ fs.readdir(cardDir, (err, files) => {
     const fileName = file;
     const fileContents = fs.readFileSync(path.join(cardDir, file), 'utf-8');
     const jsonFileContents = JSON.parse(fileContents);
-
+    
     const cardsetName = determineHumanReadableCardsetName(jsonFileContents.order[0]);
-    console.log('Creating Set:', cardsetName, 'from file:', path.join(cardDir, file));
 
     const cardSet = Object.assign({}, cardSetOutputFormat, {title: cardsetName});
 
@@ -74,10 +97,28 @@ fs.readdir(cardDir, (err, files) => {
     });
 
     fs.writeFileSync(path.join(cardOutDir, fileName), JSON.stringify(cardSet));
+    
+    tableRows.push([cardSet.title, cardSet.whiteCards.length, cardSet.blackCards.length, (cardSet.whiteCards.length + cardSet.blackCards.length)]);
 
   });
-
-  console.log('totalWhite: ', totalWhiteCardsSum, ' totalBlack: ', totalBlackCardsSum, ' totalDecks: ', totalDecksSum);
+  
+  spinner.stop();
+  
+  const taskEndTimer = now();
+  
+  tableRows.push(['Total Cards', totalWhiteCardsSum, totalBlackCardsSum, (totalWhiteCardsSum + totalBlackCardsSum)]);
+  
+  const outputTable = Table(tableHeader, tableRows, {
+    borderStyle : 1,
+    align: 'right',
+    headerAlign: 'right',
+    paddingLeft: 1,
+    paddingRight: 1,
+    
+  });
+  console.log(outputTable.render());
+  
+  spinner.succeed(chalk.green(` Finished formatting files after ${(taskEndTimer - taskStartTimer).toFixed(3)}ms\n   Created ${totalDecksSum} new decks\n`));
 
 });
 

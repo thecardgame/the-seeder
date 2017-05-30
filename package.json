@@ -8,13 +8,16 @@
   },
   "private": true,
   "dependencies": {
-    "q": "^1.5.0",
     "chalk": "^1.1.3",
-    "subscriptions-transport-ws": "^0.6.0",
     "lodash": "^4.17.4",
     "lokka": "^1.7.0",
     "lokka-transport-http": "^1.6.1",
-    "progress": "^2.0.0"
+    "ora": "^1.2.0",
+    "performance-now": "^2.1.0",
+    "progress": "^2.0.0",
+    "q": "^1.5.0",
+    "subscriptions-transport-ws": "^0.6.0",
+    "tty-table": "^2.5.1"
   },
   "devDependencies": {}
 }
